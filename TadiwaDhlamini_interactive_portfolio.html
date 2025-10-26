@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tadiwa Dhlamini - Interactive Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Calm Harmony (Light Gray, White, Dark Gray Text, Blue Accent) -->
+    <!-- Application Structure Plan: A thematic, multi-section SPA. Re-architected the resume from a chronological list to a user-centric portfolio. The structure uses a top-down narrative: Hero (Value Prop) -> Interactive Experience (Proof) -> Skills/Education (Tools) -> Projects (Passion). This flow is designed for a recruiter, allowing them to see the most relevant, high-impact work (StarRez, Google) first via interactive tabs, then drill into the specific tools (Skills Chart) that enabled that work. -->
+    <!-- Visualization & Content Choices: Report: StarRez/Google/CVS Experience -> Goal: Organize/Compare -> Viz: Interactive Tabs (HTML/JS) -> Interaction: Click tabs -> Justification: Focuses user on one "story" at a time, re-framing experience by *impact* (Data Analysis, Cloud/AI) rather than just chronology. Report: Skills List -> Goal: Inform/Organize -> Viz: Horizontal Bar Chart (Chart.js) + Text Area -> Interaction: Click chart category -> Justification: More engaging than a static list; shows *groupings* of skills and allows drill-down. Report: Coursework -> Goal: Inform -> Viz: Interactive List (HTML/JS) -> Interaction: Click course -> Justification: Hides non-critical info until requested, reducing clutter. Report: Tableau Project -> Goal: Inform -> Viz: Linked Card -> Interaction: Click -> Justification: Directs user to external proof. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; 
+            color: #334155;
+        }
+        .tab-btn.active {
+            border-bottom-color: #2563eb; 
+            color: #2563eb;
+            font-weight: 500;
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        .course-item {
+            cursor: pointer;
+        }
+        .course-desc {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .course-item.active .course-desc {
+            display: block;
+            max-height: 100px; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 280px;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+            <h1 class="text-xl font-bold text-gray-900">Tadiwa A. Dhlamini</h1>
+            <div class="space-x-4">
+                <a href="#home" class="text-sm font-medium text-gray-600 hover:text-blue-600">Home</a>
+                <a href="#experience" class="text-sm font-medium text-gray-600 hover:text-blue-600">Experience</a>
+                <a href="#skills" class="text-sm font-medium text-gray-600 hover:text-blue-600">Skills</a>
+                <a href="#projects" class="text-sm font-medium text-gray-600 hover:text-blue-600">Projects</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Section 1: Hero -->
+    <section id="home" class="py-16 sm:py-24 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">
+                Data-Driven IT Student
+            </h2>
+            <p class="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
+                Bridging Business Logic and Cloud Technology
+            </p>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-700">
+                Welcome to my interactive portfolio. This site translates my static resume into an explorable experience. I specialize in data analysis and cloud solutions, with experience ranging from reconciling financial data between Salesforce and NetSuite to developing AI-driven solutions with Google Cloud. I thrive on solving complex data challenges and building efficient, scalable processes.
+            </p>
+            <div class="mt-8 flex justify-center gap-4">
+                <a href="mailto:tadiwadhlamini12@gmail.com" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Contact Me
+                </a>
+                <a href="https://www.linkedin.com/in/tadiwa-dhlamini-294a1630b/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-blue-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    LinkedIn Profile
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Core Experience -->
+    <section id="experience" class="py-16 sm:py-24">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900">Professional Experience</h2>
+                <p class="mt-4 text-lg text-gray-600">
+                    My professional experience is centered on solving real-world data problems. Use the tabs below to explore my key projects, from financial data reconciliation at StarRez to AI-driven challenges with Google.
+                </p>
+            </div>
+
+            <!-- Interactive Tabs -->
+            <div>
+                <div class="border-b border-gray-200 mb-8">
+                    <nav class="-mb-px flex justify-center space-x-8" aria-label="Tabs">
+                        <button class="tab-btn active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="panel-starrez">
+                            Data Analysis (StarRez)
+                        </button>
+                        <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="panel-google">
+                            Cloud & AI (Google)
+                        </button>
+                        <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="panel-cvs">
+                            High-Volume Ops (CVS)
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Panels -->
+                <div class="max-w-4xl mx-auto">
+                    <div id="panel-starrez" class="tab-panel active bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-900">Salesforce CPQ Intern | StarRez</h3>
+                        <p class="text-sm text-gray-500 mb-4">June 2025 - Aug 2025 | Denver, CO</p>
+                        
+                        <h4 class="font-semibold text-lg text-gray-800 mt-4">Key Project: Annual Recurring Revenue (ARR) Reconciliation</h4>
+                        <div class="mt-4 space-y-4 text-gray-700">
+                            <p><strong class="text-gray-900">Challenge:</strong> Identified significant ARR discrepancies between Salesforce and NetSuite financial systems, impacting revenue reporting.</p>
+                            <p><strong class="text-gray-900">Action:</strong> Conducted in-depth data analysis, tracing mismatches to their source. Uncovered over 100 customer-level root causes, including missing renewals and outdated subscription statuses.</p>
+                            <p><strong class="text-gray-900">Result:</strong> Developed a scalable and repeatable reconciliation model in Excel, enabling finance teams to efficiently detect and resolve variances. Presented the methodology, findings, and actionable recommendations to executive leadership, including the CFO.</p>
+                        </div>
+                        <div class="mt-6">
+                            <h5 class="font-medium text-gray-900">Skills Utilized:</h5>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Salesforce</span>
+                                <span class="inline-block bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Microsoft Excel</span>
+                                <span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Data Analysis</span>
+                                <span class="inline-block bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Financial Reporting</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="panel-google" class="tab-panel bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-900">Google Cloud & AI Launchpad Scholar | TMCF</h3>
+                        <p class="text-sm text-gray-500 mb-4">Sep 2025, Nov 2025 | Greensboro, NC</p>
+
+                        <h4 class="font-semibold text-lg text-gray-800 mt-4">Key Project: AI & Cloud Launchpad</h4>
+                        <div class="mt-4 space-y-4 text-gray-700">
+                            <p><strong class="text-gray-900">Challenge:</strong> Tasked with solving real-world business challenges using emerging technologies in a collaborative, high-intensity program.</p>
+                            <p><strong class="text-gray-900">Action:</strong> Collaborated directly with Google engineers and peers to apply data analytics, artificial intelligence, and cloud computing principles to complex problems.</p>
+                            <p><strong class="text-gray-900">Result:</strong> Gained hands-on experience with Google Cloud Platform (GCP) tools, including BigQuery (for large-scale data analysis), Vertex AI (for machine learning), and Cloud Functions (for serverless computing).</p>
+                        </div>
+                        <div class="mt-6">
+                            <h5 class="font-medium text-gray-900">Skills Utilized:</h5>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Python</span>
+                                <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">AI / ML</span>
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Google BigQuery</span>
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Vertex AI</span>
+                                <span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Data Analytics</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="panel-cvs" class="tab-panel bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-900">Pharmacy Technician | CVS</h3>
+                        <p class="text-sm text-gray-500 mb-4">June 2024 - Present | Greensboro, NC</p>
+
+                        <h4 class="font-semibold text-lg text-gray-800 mt-4">Key Role: High-Volume Process Management</h4>
+                        <div class="mt-4 space-y-4 text-gray-700">
+                            <p><strong class="text-gray-900">Challenge:</strong> Maintain 100% accuracy, compliance, and positive customer interaction in a fast-paced, high-pressure pharmacy environment.</p>
+                            <p><strong class="text-gray-900">Action:</strong> Process and dispense an average of 350+ prescriptions daily, handling medication preparation, labeling, and identity verification. Proactively manage and resolve insurance claims.</p>
+                            <p><strong class="text-gray-900">Result:</strong> Contributed to a 45% reduction in the store's billing numbers through efficient claims handling. Consistently meet and exceed performance metrics while ensuring patient safety and confidentiality.</p>
+                        </div>
+                        <div class="mt-6">
+                            <h5 class="font-medium text-gray-900">Skills Utilized:</h5>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="inline-block bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Task Prioritization</span>
+                                <span class="inline-block bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Adaptability</span>
+                                <span class="inline-block bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Attention to Detail</span>
+                                <span class="inline-block bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Teamwork</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Skills & Education -->
+    <section id="skills" class="py-16 sm:py-24 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900">Skills & Education</h2>
+                <p class="mt-4 text-lg text-gray-600">
+                    This section provides a dynamic overview of my technical toolkit and academic foundation. Click the chart categories to see specific skills, or browse my relevant IT coursework from NC A&T.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Left Column: Skills Chart -->
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Technical Skill Dashboard</h3>
+                    <p class="text-center text-gray-600 mb-4">Click a category on the chart to see the specific skills.</p>
+                    <div class="chart-container">
+                        <canvas id="skillsChart"></canvas>
+                    </div>
+                    <div id="skill-details" class="mt-6 p-6 bg-gray-50 rounded-lg min-h-[150px]">
+                        <h4 class="font-semibold text-gray-800">Skill Details:</h4>
+                        <p class="text-gray-600 italic">Select a category from the chart above.</p>
+                    </div>
+                </div>
+
+                <!-- Right Column: Education -->
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Education & Certifications</h3>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6">
+                        <h4 class="text-xl font-semibold text-gray-800">North Carolina A&T State University</h4>
+                        <p class="text-blue-600 font-medium">Bachelor of Science, Information Technology</p>
+                        <p class="text-sm text-gray-600">Expected May 2027 | GPA: 3.2/3.2</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Key Coursework (Click to expand):</h4>
+                        <ul class="space-y-2">
+                            <li class="course-item p-3 bg-white rounded-md shadow-sm border border-gray-200">
+                                <div class="font-medium text-gray-800 flex justify-between items-center">
+                                    <span>Computer Database Management I & II</span>
+                                    <span class="text-blue-500 text-xs">+</span>
+                                </div>
+                                <p class="course-desc text-sm text-gray-600 mt-2">
+                                    Learned to design, implement, and query complex relational databases, a core skill for all data analysis and integration tasks.
+                                </p>
+                            </li>
+                            <li class="course-item p-3 bg-white rounded-md shadow-sm border border-gray-200">
+                                <div class="font-medium text-gray-800 flex justify-between items-center">
+                                    <span>Statistics and Probability</span>
+                                    <span class="text-blue-500 text-xs">+</span>
+                                </div>
+                                <p class="course-desc text-sm text-gray-600 mt-2">
+                                    Developed a quantitative base for conducting exploratory data analysis (EDA), hypothesis testing, and interpreting performance metrics.
+                                </p>
+                            </li>
+                            <li class="course-item p-3 bg-white rounded-md shadow-sm border border-gray-200">
+                                <div class="font-medium text-gray-800 flex justify-between items-center">
+                                    <span>Introduction to Programming (Java)</span>
+                                    <span class="text-blue-500 text-xs">+</span>
+                                </div>
+                                <p class="course-desc text-sm text-gray-600 mt-2">
+                                    Built a strong foundation in object-oriented programming, logic, and data structures.
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Certifications:</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-700">
+                            <li>Microsoft Office Specialist: Excel Associate (2023)</li>
+                            <li>Registered Pharmacy Technician (RPhT) (2024 - Present)</li>
+                            <li>Student Success Mentor Training (2025)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Projects & Honors -->
+    <section id="projects" class="py-16 sm:py-24">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900">Projects & Leadership</h2>
+                <p class="mt-4 text-lg text-gray-600">
+                    Beyond my core experience, I actively participate in challenges and build projects that sharpen my skills. Here are a few highlights, including my public Tableau dashboard.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Tableau Project -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-900">Tableau Data Visualization</h3>
+                        <p class="mt-3 text-base text-gray-700">
+                            A public dashboard showcasing my skills in data visualization and business intelligence, demonstrating my ability to turn raw data into clear, actionable insights.
+                        </p>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <a href="https://surl.li/fqshnw" target="_blank" rel="noopener noreferrer" class="font-medium text-blue-600 hover:text-blue-700">
+                            View Dashboard &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Honda Immersion -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-900">TMCF Honda Immersion Program</h3>
+                        <p class="mt-3 text-base text-gray-700">
+                            Selected as one of a competitive cohort of student leaders for an immersive professional development experience focused on innovation, operations, and corporate strategy with Honda executives.
+                        </p>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <span class="font-medium text-gray-600">Business Strategy & Leadership</span>
+                    </div>
+                </div>
+                
+                <!-- Vanguard AI Challenge -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-900">Vanguard AI Innovation Challenge</h3>
+                        <p class="mt-3 text-base text-gray-700">
+                            Participated in a competitive challenge focused on developing and pitching innovative AI-driven solutions to real-world business problems, honing skills in applied AI and problem-solving.
+                        </p>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <span class="font-medium text-gray-600">Applied AI & Innovation</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Honors & Activities</h3>
+                <p class="text-lg text-gray-700 max-w-3xl mx-auto">
+                    3X Dean's List &bull; National Society of Leadership and Success (NSLS) &bull; Men On the Move &bull; InternXL Fall '25 - Spring '26 Campus Ambassador &bull; Varsity Esports Team Member; Vanguard AI innovation challenge 25
+            
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+            <p class="text-base text-gray-600">
+                &copy; 2025 Tadiwa A. Dhlamini
+            </p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="mailto:tadiwadhlamini12@gmail.com" class="text-gray-500 hover:text-gray-700">Email</a>
+                <a href="https://www.linkedin.com/in/tadiwa-dhlamini-294a1630b/" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700">LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Tabbed Experience Section ---
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetPanelId = button.getAttribute('data-target');
+                    
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    tabPanels.forEach(panel => {
+                        if (panel.id === targetPanelId) {
+                            panel.classList.add('active');
+                        } else {
+                            panel.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // --- Collapsible Coursework Section ---
+            const courseItems = document.querySelectorAll('.course-item');
+            courseItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    item.classList.toggle('active');
+                });
+            });
+
+
+            // --- Skills Chart ---
+            const skillData = {
+                'Data & Databases': {
+                    skills: ['SQL (Intermediate)', 'Tableau', 'Excel (Certified)', 'Data Storage & Retrieval', 'Salesforce'],
+                    color: 'rgba(59, 130, 246, 0.7)' 
+                },
+                'Programming': {
+                    skills: ['Python (Intermediate)', 'Java', 'JavaScript', 'HTML'],
+                    color: 'rgba(16, 185, 129, 0.7)'
+                },
+                'Cloud & Systems': {
+                    skills: ['Google Cloud (BigQuery, Vertex AI)', 'Linux', 'Web Systems', 'Computer Networking'],
+                    color: 'rgba(245, 158, 11, 0.7)'
+                }
+            };
+            const skillDetailsEl = document.getElementById('skill-details');
+            const ctx = document.getElementById('skillsChart').getContext('2d');
+            
+            const chartLabels = Object.keys(skillData);
+            const chartDataValues = chartLabels.map(label => skillData[label].skills.length);
+            const chartColors = chartLabels.map(label => skillData[label].color);
+
+            const skillsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: '# of Skills',
+                        data: chartDataValues,
+                        backgroundColor: chartColors,
+                        borderColor: chartColors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', 
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    onClick: (e) => {
+                        const activePoints = skillsChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+                        if (activePoints.length > 0) {
+                            const index = activePoints[0].index;
+                            const label = skillsChart.data.labels[index];
+                            const skills = skillData[label].skills;
+                            
+                            let skillsHtml = `<h4 class="font-semibold text-gray-800">${label} Skills:</h4><ul class="list-disc list-inside mt-2 space-y-1 text-gray-700">`;
+                            skills.forEach(skill => {
+                                skillsHtml += `<li>${skill}</li>`;
+                            });
+                            skillsHtml += `</ul>`;
+                            
+                            skillDetailsEl.innerHTML = skillsHtml;
+                        }
+                    }
+                }
+            });
+
+            // --- Smooth Scrolling for Nav ---
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
